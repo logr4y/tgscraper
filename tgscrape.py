@@ -18,12 +18,6 @@ from bs4 import BeautifulSoup
 def usage(_bin):
     print('Usage: {} <groupname> [minid] [maxid]'.format(_bin))
 
-def downloadmsg(id):
-    global _url, _groupname
-    _rurl = _url + str(_id) + '?embed=1'
-    _o = requests.get(_rurl)
-    return _o
-
 _argnum = len(sys.argv)
 
 if _argnum < 2:
@@ -45,7 +39,8 @@ _url = 'https://t.me/{}/'.format(_groupname)
 _id = _minid
 _cnt404 = 0
 while True:
-    _output = downloadmsg(_id)
+    _rurl = _url + str(_id) + '?embed=1'
+    _output = requests.get(_rurl)
     if _output.status_code < 400:
         _soup = BeautifulSoup(_output.text, 'html.parser')
         _msg = _soup.find('div', class_='tgme_widget_message_text')
