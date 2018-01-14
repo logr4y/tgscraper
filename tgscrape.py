@@ -51,9 +51,8 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb = {}):
             if datetime:
                 (name, username) = get_sender(soup)
                 outputline = '[{}] {}{}: '.format(datetime,
-                                        name,
-                                        ' (@{})'.format(username) if username else ''
-                                        )
+                                                  name,
+                                                  ' (@{})'.format(username) if username else '')
                 ldb[msg_id]['datetime'] = datetime
                 ldb[msg_id]['name'] = name
                 ldb[msg_id]['username'] = username
@@ -66,12 +65,10 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb = {}):
                     else:
                         msg = msg[0].text
                         quote = ''
-                    outputline += '{}{}'.format(
-                                            '{{ {} }} '.format(quote) if quote else '',
-                                            msg)
+                    outputline += '{}{}'.format('{{ {} }} '.format(quote) if quote else '',
+                                                msg)
                     ldb[msg_id]['msg'] = msg
                     ldb[msg_id]['quote'] = quote
-                    
 
                 media = soup.find('', class_=config.photo_class) or \
                     soup.find('', class_=config.video_class) or \
@@ -148,7 +145,7 @@ except Exception as e:
 finally:
     try:
         dh.write_data(database)
-    except:
+    except NameError:
         pass
     print(exit_msg)
     exit(exit_code)
