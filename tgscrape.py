@@ -20,7 +20,7 @@ from bs4 import BeautifulSoup
 
 def usage(pyfile):
     """ Usage """
-    print('Usage: {} <groupname> [minid] [maxid]'.format(pyfile))
+    return 'Usage: {} <groupname> [minid] [maxid]'.format(pyfile)
 
 def get_sender(obj):
     """ Retrieves the sender of a message """
@@ -32,29 +32,28 @@ def get_sender(obj):
     elif author.name == 'span':
         return_username = ''
     else:
-        print("author retrieve error")
-        exit()
+        exit("author retrieve error")
+
     return (return_name, return_username)
 
 argnum = len(sys.argv)
 
 if argnum < 2:
-    usage(sys.argv[0])
-    exit()
+    exit(usage(sys.argv[0]))
 
 min_id = int(sys.argv[2]) if argnum >= 3 else 0
 max_id = int(sys.argv[3]) if argnum >= 4 else -1
 groupname = sys.argv[1]
-max_404 = 20
+max_err = 20
 
 url = 'https://t.me/{}/'.format(groupname)
 
 msg_id = min_id
-cnt_404 = 0
+cnt_err = 0
 while True:
     r_url = url + str(msg_id) + '?embed=1'
     response = requests.get(r_url)
-    if response.status_code < 400:
+    if len(response.text) > 3000:
         soup = BeautifulSoup(response.text, 'html.parser')
         msg = soup.find_all('div', class_='tgme_widget_message_text')
         if msg:
@@ -73,11 +72,12 @@ while True:
                                       '{{ {} }} '.format(quote) if quote else '',
                                       msg.text))
     else:
-        cnt_404 += 1
-        if cnt_404 == max_404:
-            exit()
+        cnt_err += 1
+        if cnt_err == max_err:
+            exit('{} consecutive empty messages. Exiting...'.format(max_err))
 
     if msg_id == max_id:
-        exit()
+        exit('All messages retrieved. Exiting...')
+
     msg_id += 1
     time.sleep(0.5)
