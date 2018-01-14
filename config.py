@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+import json
 
 # script parameters
 max_err = 20
@@ -19,19 +20,25 @@ link_description_class = 'link_preview_description'
 link_preview_class = 'link_preview_right_image'
 author_class = 'tgme_widget_message_author_name'
 service_class = 'message_media_not_supported_label'
+meta_class = 'tgme_widget_message_meta'
 
 # message object
-message_object = dict()
-message_object['datetime'] = str()
-message_object['name'] = str()
-message_object['username'] = str()
-message_object['quote'] = str()
-message_object['msg'] = str()
-message_object['photo'] = str()
-message_object['video'] = str()
-message_object['voice'] = str()
-message_object['link'] = dict()
-message_object['link']['title'] = str()
-message_object['link']['description'] = str()
-message_object['link']['preview'] = str()
-message_object['msg'] = '0'
+message_object = """
+{
+    "datetime": "",
+    "name": "",
+    "username": "",
+    "quote": "",
+    "deleted": "0",
+    "msg": "",
+    "photo": "",
+    "video": "",
+    "voice": "",
+    "link": {
+        "title": "",
+        "description": "",
+        "preview": ""
+    }
+}
+"""
+message_object = json.loads(message_object)

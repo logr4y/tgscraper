@@ -3,6 +3,7 @@ import os
 import config
 
 class DB:
+    """ Output handling """
     logfile = ''
 
     def __init__(self, lgroup):
