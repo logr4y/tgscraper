@@ -118,7 +118,7 @@ def print_object(lobj):
     print(outputline)
 
 
-def scrape_run(lgroupname, lmi n_id, lmax_id, ldb):
+def scrape_run(lgroupname, lmin_id, lmax_id, ldb):
     """ Main logic """
     msg_id = lmin_id
     cnt_err = 0
