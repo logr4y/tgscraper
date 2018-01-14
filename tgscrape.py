@@ -32,8 +32,6 @@ def get_sender(obj):
         return_username = author['href'].split('/')[3]
     elif author.name == 'span':
         return_username = ''
-    else:
-        exit("`author` retrieval error. Exiting...")
 
     return (return_name, return_username)
 
@@ -126,10 +124,12 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb = {}):
         time.sleep(config.sleeptime)
 
 try:
+    print('> Telegram Public Groups Scraper\n')
     argnum = len(sys.argv)
 
     if argnum < 2:
-        exit(usage(sys.argv[0]))
+        print(usage(sys.argv[0]))
+        raise Exception('\nNot enough parameters')
 
     groupname = sys.argv[1]
     min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
@@ -142,8 +142,14 @@ try:
 except KeyboardInterrupt:
     exit_code = 1
     exit_msg = '\rExiting...'
+except Exception as e:
+    exit_code = 1
+    exit_msg = e
 finally:
-    dh.write_data(database)
+    try:
+        dh.write_data(database)
+    except:
+        pass
     print(exit_msg)
     exit(exit_code)
 
