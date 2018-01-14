@@ -18,6 +18,7 @@ import time
 import requests
 from bs4 import BeautifulSoup
 import config
+import db
 
 def usage(pyfile):
     """ Usage """
@@ -25,8 +26,7 @@ def usage(pyfile):
 
 def get_sender(obj):
     """ Retrieves the sender of a message """
-    obj = obj.find('div', class_='tgme_widget_message_author')
-    author = list(obj.children)[0]
+    author = obj.find('', class_=config.author_class)
     return_name = author.text
     if author.name == 'a':
         return_username = author['href'].split('/')[3]
@@ -37,7 +37,7 @@ def get_sender(obj):
 
     return (return_name, return_username)
 
-def scrape_run(lgroupname, lmin_id, lmax_id):
+def scrape_run(lgroupname, lmin_id, lmax_id, ldb = {}):
     """ Main logic """
     msg_id = lmin_id
     cnt_err = 0
@@ -49,12 +49,16 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
             cnt_err = 0
             soup = BeautifulSoup(response.text, 'html.parser')
             datetime = soup.find('time')['datetime']
+            ldb[msg_id] = {}
             if datetime:
                 (name, username) = get_sender(soup)
                 outputline = '[{}] {}{}: '.format(datetime,
                                         name,
                                         ' (@{})'.format(username) if username else ''
                                         )
+                ldb[msg_id]['datetime'] = datetime
+                ldb[msg_id]['name'] = name
+                ldb[msg_id]['username'] = username
 
                 msg = soup.find_all('', class_=config.text_class)
                 if msg:
@@ -67,6 +71,9 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
                     outputline += '{}{}'.format(
                                             '{{ {} }} '.format(quote) if quote else '',
                                             msg)
+                    ldb[msg_id]['msg'] = msg
+                    ldb[msg_id]['quote'] = quote
+                    
 
                 media = soup.find('', class_=config.photo_class) or \
                     soup.find('', class_=config.video_class) or \
@@ -76,13 +83,16 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
                 if media:
                     if media['class'][0] == config.photo_class:
                         outputline += media['style'].split("'")[1]
+                        ldb[msg_id]['photo'] = media['style'].split("'")[1]
 
                     if media['class'][0] == config.video_class:
                         outputline += media.video['src']
+                        ldb[msg_id]['video'] = media.video['src']
 
                     if media['class'][0] == config.voice_class:
                         outputline += media.audio['src']
-                    
+                        ldb[msg_id]['voice'] = media.video['src']
+
                     if media['class'][0] == config.link_class:
                         title_class = soup.find('', class_=config.link_title_class)
                         description_class = soup.find('', class_=config.link_description_class)
@@ -91,24 +101,29 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
                             title_class.text + ' - ' if title_class else '',
                             description_class.text + ' - ' if description_class else '',
                             preview_class['style'].split("'")[1] if preview_class  else ''
-                        )                        
+                        )
+                        ldb[msg_id]['link'] = {}
+                        ldb[msg_id]['link']['title'] = title_class.text if title_class else ''
+                        ldb[msg_id]['link']['description'] = description_class.text \
+                                                                if description_class else ''
+                        ldb[msg_id]['link']['preview'] = preview_class['style'].split("'")[1] \
+                                                                if preview_class else ''
 
                 print(outputline)
                 outputline = ''
 
         else:
             print('[deleted]')
+            ldb[msg_id]['msg'] = '[deleted]'
             cnt_err += 1
             if cnt_err == config.max_err:
-                exit('{} consecutive empty messages. Exiting...'.format(config.max_err))
+                return(1, '{} consecutive empty messages. Exiting...'.format(config.max_err))
 
         if msg_id == lmax_id:
-            print('All messages retrieved. Exiting...')
-            exit(0)
+            return(0, 'All messages retrieved. Exiting...')
 
         msg_id += 1
         time.sleep(config.sleeptime)
-
 
 if __name__ == '__main__':
     try:
@@ -121,9 +136,15 @@ if __name__ == '__main__':
         min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
         max_id = int(sys.argv[3]) if argnum >= 4 else config.max_id
         
-        scrape_run(groupname, min_id, max_id)
+        dh = db.DB(groupname)
+        database = dh.load_data()
+        (exit_code, exit_msg) = scrape_run(groupname, min_id, max_id, database)
     except KeyboardInterrupt:
-        print('\rExiting...')
-        exit(0)
+        exit_code = 1
+        exit_msg = '\rExiting...'
+    finally:
+        dh.write_data(database)
+        print(exit_msg)
+        exit(exit_code)
 
 
