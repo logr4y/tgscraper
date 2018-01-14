@@ -108,7 +108,7 @@ def print_object(lobj):
     outputline += ' {}'.format(lobj['photo']) if lobj['photo'] else ''
     outputline += ' {}'.format(lobj['video']) if lobj['video'] else ''
     outputline += ' {}'.format(lobj['voice']) if lobj['voice'] else ''
-    outputline += ' [{}]'.format(" - ".join([lobj['link']['title'],
+    outputline += ' <{}>'.format(" - ".join([lobj['link']['title'],
                                              lobj['link']['description'],
                                              lobj['link']['preview']
                                             ])) if lobj['link']['title'] or \
@@ -118,7 +118,7 @@ def print_object(lobj):
     print(outputline)
 
 
-def scrape_run(lgroupname, lmin_id, lmax_id, ldb):
+def scrape_run(lgroupname, lmi n_id, lmax_id, ldb):
     """ Main logic """
     msg_id = lmin_id
     cnt_err = 0
