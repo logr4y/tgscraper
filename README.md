@@ -12,7 +12,9 @@ $ python3 tgscrape.py fun_with_friends 1 1000
 ```
 dumps messages with ID 1 through 1000 from the group @fun_with_friends
 
-The loop stops when it finds 20 consecutive empty messages
+The loop stops when it finds 20 consecutive empty messages.
+
+It stores retrieved messages in json format in the `conversations` folder.
 
 # Requirements
 BeautifulSoup4, requests
