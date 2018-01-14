@@ -46,6 +46,7 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
         r_url = url + str(msg_id) + '?embed=1'
         response = requests.get(r_url)
         if len(response.text) > 3000:
+            cnt_err = 0
             soup = BeautifulSoup(response.text, 'html.parser')
             datetime = soup.find('time')['datetime']
             if datetime:
@@ -69,7 +70,8 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
 
                 media = soup.find('', class_=config.photo_class) or \
                     soup.find('', class_=config.video_class) or \
-                    soup.find('', class_=config.voice_class)
+                    soup.find('', class_=config.voice_class) or \
+                    soup.find('', class_=config.link_class)
 
                 if media:
                     if media['class'][0] == config.photo_class:
@@ -80,11 +82,20 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
 
                     if media['class'][0] == config.voice_class:
                         outputline += media.audio['src']
+                    
+                    # ugly, need to fix
+                    if media['class'][0] == config.link_class:
+                        outputline += ' [{}{}{}]'.format(
+                            media.contents[3].text + ' - ' if len(media.contents) >= 4 else '',
+                            media.contents[5].text + ' - ' if len(media.contents) >= 6 else '',
+                            media.contents[1]['style'].split("'")[1] if len(media.contents) >= 2 else ''
+                        )                        
 
                 print(outputline)
                 outputline = ''
 
         else:
+            print('[deleted]')
             cnt_err += 1
             if cnt_err == config.max_err:
                 exit('{} consecutive empty messages. Exiting...'.format(config.max_err))
