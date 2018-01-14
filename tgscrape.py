@@ -78,7 +78,7 @@ def parse_message(soup):
                 return_object['video'] = media.video['src']
 
             if media['class'][0] == config.voice_class:
-                return_object['voice'] = media.audio['src']
+                return_object['voice'] = media['src']
 
             if media['class'][0] == config.link_class:
                 title_class = soup.find('', class_=config.link_title_class)
