@@ -45,11 +45,11 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb = {}):
     while True:
         r_url = url + str(msg_id) + '?embed=1'
         response = requests.get(r_url)
+        ldb[msg_id] = {}
         if len(response.text) > 3000:
             cnt_err = 0
             soup = BeautifulSoup(response.text, 'html.parser')
             datetime = soup.find('time')['datetime']
-            ldb[msg_id] = {}
             if datetime:
                 (name, username) = get_sender(soup)
                 outputline = '[{}] {}{}: '.format(datetime,
