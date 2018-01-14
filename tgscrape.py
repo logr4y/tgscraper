@@ -37,12 +37,13 @@ def get_sender(obj):
 
     return (return_name, return_username)
 
-def scrape_run(lurl, lmin_id, lmax_id):
+def scrape_run(lgroupname, lmin_id, lmax_id):
     """ Main logic """
     msg_id = lmin_id
     cnt_err = 0
+    url = 'https://t.me/{}/'.format(lgroupname)
     while True:
-        r_url = lurl + str(msg_id) + '?embed=1'
+        r_url = url + str(msg_id) + '?embed=1'
         response = requests.get(r_url)
         if len(response.text) > 3000:
             soup = BeautifulSoup(response.text, 'html.parser')
@@ -103,11 +104,11 @@ if __name__ == '__main__':
         if argnum < 2:
             exit(usage(sys.argv[0]))
 
-        url = 'https://t.me/{}/'.format(sys.argv[1])        
+        groupname = sys.argv[1]
         min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
         max_id = int(sys.argv[3]) if argnum >= 4 else config.max_id
         
-        scrape_run(url, min_id, max_id)
+        scrape_run(groupname, min_id, max_id)
     except KeyboardInterrupt:
         print('\nExiting...')
         exit(0)
