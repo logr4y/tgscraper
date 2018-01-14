@@ -83,12 +83,14 @@ def scrape_run(lgroupname, lmin_id, lmax_id):
                     if media['class'][0] == config.voice_class:
                         outputline += media.audio['src']
                     
-                    # ugly, need to fix
                     if media['class'][0] == config.link_class:
+                        title_class = soup.find('', class_=config.link_title_class)
+                        description_class = soup.find('', class_=config.link_description_class)
+                        preview_class = soup.find('', class_=config.link_preview_class)
                         outputline += ' [{}{}{}]'.format(
-                            media.contents[3].text + ' - ' if len(media.contents) >= 4 else '',
-                            media.contents[5].text + ' - ' if len(media.contents) >= 6 else '',
-                            media.contents[1]['style'].split("'")[1] if len(media.contents) >= 2 else ''
+                            title_class.text + ' - ' if title_class else '',
+                            description_class.text + ' - ' if description_class else '',
+                            preview_class['style'].split("'")[1] if preview_class  else ''
                         )                        
 
                 print(outputline)
