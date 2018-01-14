@@ -10,14 +10,14 @@ Example:
     $ python3 tgscrape.py fun_with_friends 1 1000
         - dumps messages 1 through 1000 from the group @fun_with_friends
 
-The loop stops when it finds 20 consecutive empty messages
+The loop stops when it finds 20 consecutive empty messages (defined by max_err in config.py)
 """
 
 import sys
 import time
 import requests
-import config
 from bs4 import BeautifulSoup
+import config
 
 def usage(pyfile):
     """ Usage """
@@ -33,7 +33,7 @@ def get_sender(obj):
     elif author.name == 'span':
         return_username = ''
     else:
-        exit("author retrieve error")
+        exit("`author` retrieval error. Exiting...")
 
     return (return_name, return_username)
 
@@ -89,10 +89,11 @@ def scrape_run(lurl, lmin_id, lmax_id):
                 exit('{} consecutive empty messages. Exiting...'.format(config.max_err))
 
         if msg_id == lmax_id:
-            exit('All messages retrieved. Exiting...')
+            print('All messages retrieved. Exiting...')
+            exit(0)
 
         msg_id += 1
-        time.sleep(0.5)
+        time.sleep(config.sleeptime)
 
 
 if __name__ == '__main__':
@@ -102,14 +103,13 @@ if __name__ == '__main__':
         if argnum < 2:
             exit(usage(sys.argv[0]))
 
+        url = 'https://t.me/{}/'.format(sys.argv[1])        
         min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
         max_id = int(sys.argv[3]) if argnum >= 4 else config.max_id
-        groupname = sys.argv[1]
-
-        url = 'https://t.me/{}/'.format(groupname)
         
         scrape_run(url, min_id, max_id)
     except KeyboardInterrupt:
-        exit('Exiting...')
+        print('\nExiting...')
+        exit(0)
 
 

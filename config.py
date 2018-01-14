@@ -3,8 +3,9 @@
 
 # script parameters
 max_err = 20
-min_id = 1 # first message
-max_id = -1 # no limit
+min_id = 1          # first message
+max_id = -1         # no limit
+sleeptime = 0.5     # half second sleep
 
 # classes for messages
 text_class = 'tgme_widget_message_text'
