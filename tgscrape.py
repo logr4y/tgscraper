@@ -96,7 +96,7 @@ def parse_message(soup):
 
 def print_object(lobj):
     """ Print a message object """
-    if 'deleted' in lobj.keys():
+    if 'deleted' in lobj.keys() and lobj['deleted'] == '1':
         print('[deleted]')
         return
 
@@ -139,7 +139,7 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb):
                 if cnt_err == config.max_err:
                     for id_to_delete in range(msg_id, msg_id - config.max_err, -1):
                         del ldb[str(id_to_delete)]
-                    return '{} consecutive empty messages. Exiting...'.format(config.max_err)
+                    return '{} consecutive empty messages. Current ID: {}. Exiting...'.format(config.max_err, db_index)
             time.sleep(config.sleeptime)
 
         print_object(ldb[db_index])
