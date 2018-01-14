@@ -23,5 +23,6 @@ class DB:
 
     def write_data(self, ldb):
         """ Saves conversation to file """
+        print('Writing to {}...'.format(self.logfile))
         with open(self.logfile, 'w') as fp:
             json.dump(ldb, fp)

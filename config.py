@@ -18,3 +18,19 @@ link_title_class = 'link_preview_site_name'
 link_description_class = 'link_preview_description'
 link_preview_class = 'link_preview_right_image'
 author_class = 'tgme_widget_message_author_name'
+
+# message object
+message_object = dict()
+message_object['datetime'] = str()
+message_object['name'] = str()
+message_object['username'] = str()
+message_object['quote'] = str()
+message_object['msg'] = str()
+message_object['photo'] = str()
+message_object['video'] = str()
+message_object['voice'] = str()
+message_object['link'] = dict()
+message_object['link']['title'] = str()
+message_object['link']['description'] = str()
+message_object['link']['preview'] = str()
+message_object['msg'] = '0'
