@@ -18,6 +18,7 @@ link_title_class = 'link_preview_site_name'
 link_description_class = 'link_preview_description'
 link_preview_class = 'link_preview_right_image'
 author_class = 'tgme_widget_message_author_name'
+service_class = 'message_media_not_supported_label'
 
 # message object
 message_object = dict()

@@ -60,6 +60,10 @@ def parse_message(soup):
             return_object['msg'] = msg
             if quote:
                 return_object['quote'] = quote
+        
+        service_msg = soup.find('', class_=config.service_class)
+        if service_msg:
+            return_object['msg'] = '[SERVICE MESSAGE]'
 
         media = soup.find('', class_=config.photo_class) or \
             soup.find('', class_=config.video_class) or \
