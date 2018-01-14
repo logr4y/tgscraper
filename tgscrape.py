@@ -110,7 +110,7 @@ if __name__ == '__main__':
         
         scrape_run(groupname, min_id, max_id)
     except KeyboardInterrupt:
-        print('\nExiting...')
+        print('\rExiting...')
         exit(0)
 
 
