@@ -117,34 +117,34 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb = {}):
             ldb[msg_id]['msg'] = '[deleted]'
             cnt_err += 1
             if cnt_err == config.max_err:
-                return(1, '{} consecutive empty messages. Exiting...'.format(config.max_err))
+                return '{} consecutive empty messages. Exiting...'.format(config.max_err)
 
         if msg_id == lmax_id:
-            return(0, 'All messages retrieved. Exiting...')
+            return 'All messages retrieved. Exiting...'
 
         msg_id += 1
         time.sleep(config.sleeptime)
 
-if __name__ == '__main__':
-    try:
-        argnum = len(sys.argv)
+try:
+    argnum = len(sys.argv)
 
-        if argnum < 2:
-            exit(usage(sys.argv[0]))
+    if argnum < 2:
+        exit(usage(sys.argv[0]))
 
-        groupname = sys.argv[1]
-        min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
-        max_id = int(sys.argv[3]) if argnum >= 4 else config.max_id
-        
-        dh = db.DB(groupname)
-        database = dh.load_data()
-        (exit_code, exit_msg) = scrape_run(groupname, min_id, max_id, database)
-    except KeyboardInterrupt:
-        exit_code = 1
-        exit_msg = '\rExiting...'
-    finally:
-        dh.write_data(database)
-        print(exit_msg)
-        exit(exit_code)
+    groupname = sys.argv[1]
+    min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
+    max_id = int(sys.argv[3]) if argnum >= 4 else config.max_id
+    
+    dh = db.DB(groupname)
+    database = dh.load_data()
+    exit_msg = scrape_run(groupname, min_id, max_id, database)
+    exit_code = 0
+except KeyboardInterrupt:
+    exit_code = 1
+    exit_msg = '\rExiting...'
+finally:
+    dh.write_data(database)
+    print(exit_msg)
+    exit(exit_code)
 
 
