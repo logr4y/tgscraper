@@ -16,6 +16,7 @@ The loop stops when it finds 20 consecutive empty messages
 import sys
 import time
 import requests
+import config
 from bs4 import BeautifulSoup
 
 def usage(pyfile):
@@ -36,48 +37,79 @@ def get_sender(obj):
 
     return (return_name, return_username)
 
-argnum = len(sys.argv)
-
-if argnum < 2:
-    exit(usage(sys.argv[0]))
-
-min_id = int(sys.argv[2]) if argnum >= 3 else 0
-max_id = int(sys.argv[3]) if argnum >= 4 else -1
-groupname = sys.argv[1]
-max_err = 20
-
-url = 'https://t.me/{}/'.format(groupname)
-
-msg_id = min_id
-cnt_err = 0
-while True:
-    r_url = url + str(msg_id) + '?embed=1'
-    response = requests.get(r_url)
-    if len(response.text) > 3000:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        msg = soup.find_all('div', class_='tgme_widget_message_text')
-        if msg:
-            if len(msg) == 2:
-                quote = msg[0].text
-                msg = msg[1]
-            else:
-                msg = msg[0]
-                quote = ''
-            (name, username) = get_sender(soup)
+def scrape_run(url, min_id, max_id):
+    """ Main logic """
+    msg_id = min_id
+    cnt_err = 0
+    while True:
+        r_url = url + str(msg_id) + '?embed=1'
+        response = requests.get(r_url)
+        if len(response.text) > 3000:
+            soup = BeautifulSoup(response.text, 'html.parser')
             datetime = soup.find('time')['datetime']
-            print(
-                '[{}] {}{} {}{}'.format(datetime,
-                                      name,
-                                      ' (@{}):'.format(username) if username else ':',
-                                      '{{ {} }} '.format(quote) if quote else '',
-                                      msg.text))
-    else:
-        cnt_err += 1
-        if cnt_err == max_err:
-            exit('{} consecutive empty messages. Exiting...'.format(max_err))
+            if datetime:
+                (name, username) = get_sender(soup)
+                outputline = '[{}] {}{}: '.format(datetime,
+                                        name,
+                                        ' (@{})'.format(username) if username else ''
+                                        )
 
-    if msg_id == max_id:
-        exit('All messages retrieved. Exiting...')
+                msg = soup.find_all('', class_=config.text_class)
+                if msg:
+                    if len(msg) == 2:
+                        quote = msg[0].text
+                        msg = msg[1].text
+                    else:
+                        msg = msg[0].text
+                        quote = ''
+                    outputline += '{}{}'.format(
+                                            '{{ {} }} '.format(quote) if quote else '',
+                                            msg)
 
-    msg_id += 1
-    time.sleep(0.5)
+                media = soup.find('', class_=config.photo_class) or \
+                    soup.find('', class_=config.video_class) or \
+                    soup.find('', class_=config.voice_class)
+
+                if media:
+                    if media['class'][0] == config.photo_class:
+                        outputline += media['style'].split("'")[1]
+
+                    if media['class'][0] == config.video_class:
+                        outputline += media.video['src']
+
+                    if media['class'][0] == config.voice_class:
+                        outputline += media.audio['src']
+
+                print(outputline)
+                outputline = ''
+
+        else:
+            cnt_err += 1
+            if cnt_err == config.max_err:
+                exit('{} consecutive empty messages. Exiting...'.format(config.max_err))
+
+        if msg_id == max_id:
+            exit('All messages retrieved. Exiting...')
+
+        msg_id += 1
+        time.sleep(0.5)
+
+
+if __name__ == '__main__':
+    try:
+        argnum = len(sys.argv)
+
+        if argnum < 2:
+            exit(usage(sys.argv[0]))
+
+        min_id = int(sys.argv[2]) if argnum >= 3 else config.min_id
+        max_id = int(sys.argv[3]) if argnum >= 4 else config.max_id
+        groupname = sys.argv[1]
+
+        url = 'https://t.me/{}/'.format(groupname)
+        
+        scrape_run(url, min_id, max_id)
+    except KeyboardInterrupt:
+        exit('Exiting...')
+
+
