@@ -78,7 +78,7 @@ def parse_message(soup):
                 return_object['video'] = media.video['src']
 
             if media['class'][0] == config.voice_class:
-                return_object['voice'] = media.video['src']
+                return_object['voice'] = media.audio['src']
 
             if media['class'][0] == config.link_class:
                 title_class = soup.find('', class_=config.link_title_class)
@@ -133,10 +133,12 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb):
                 soup_object = BeautifulSoup(response.text, 'html.parser')
                 ldb[db_index] = parse_message(soup_object)
             else:
-                ldb[db_index] = {}
+                ldb[db_index] = copy.deepcopy(config.message_object)
                 ldb[db_index]['deleted'] = '1'
                 cnt_err += 1
                 if cnt_err == config.max_err:
+                    for id_to_delete in range(msg_id, msg_id - config.max_err, -1):
+                        del ldb[str(id_to_delete)]
                     return '{} consecutive empty messages. Exiting...'.format(config.max_err)
             time.sleep(config.sleeptime)
 
