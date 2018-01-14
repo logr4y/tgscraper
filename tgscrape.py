@@ -40,7 +40,7 @@ def get_sender(obj):
 
 def parse_message(soup):
     """ Parses a message, returns object """
-    datetime = soup.find('time')['datetime']
+    datetime = soup.find_all('time')[-1]['datetime']
     return_object = copy.deepcopy(config.message_object)
     if datetime:
         (name, username) = get_sender(soup)
