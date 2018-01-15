@@ -8,6 +8,7 @@ min_id = 1                          # first message
 max_id = -1                         # no limit
 sleeptime = 0.5                     # half second sleep
 output_folder = './conversations/'  # output folder
+messages_dump_cnt = 100             # number of messages dumped to periodically write on disk
 
 # classes for messages
 text_class = 'tgme_widget_message_text'

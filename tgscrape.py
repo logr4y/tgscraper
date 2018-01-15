@@ -120,6 +120,7 @@ def print_object(lobj):
 
 def scrape_run(lgroupname, lmin_id, lmax_id, ldb):
     """ Main logic """
+    global dh
     msg_id = lmin_id
     cnt_err = 0
     url = 'https://t.me/{}/'.format(lgroupname)
@@ -142,13 +143,17 @@ def scrape_run(lgroupname, lmin_id, lmax_id, ldb):
                     return '{} consecutive empty messages. Current ID: {}. Exiting...'.format(config.max_err, db_index)
             time.sleep(config.sleeptime)
 
+            # write to disk after 100 (default value) messages
+            if (msg_id - lmin_id + 1) % config.messages_dump_cnt == 0:
+                dh.write_data(ldb)
+
+
         print_object(ldb[db_index])
 
         if msg_id == lmax_id:
             return 'All messages retrieved. Exiting...'
 
         msg_id += 1
-
 
 try:
     print('> Telegram Public Groups Scraper\n')
@@ -167,11 +172,9 @@ try:
     exit_msg = scrape_run(groupname, min_id, max_id, database)
     exit_code = 0
 except KeyboardInterrupt:
-    exit_code = 1
-    exit_msg = 'Exiting...'
-except ValueError as e:
-    exit_code = 1
-    exit_msg = e
+    (exit_code, exit_msg) = 1, 'Exiting...'
+except:
+    (exit_code, exit_msg) = 1, 'Caught Exception. Exiting...'
 finally:
     print('\r  ')
     try:
